@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1705.2
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureHttp", "AzureHttp\AzureHttp.csproj", "{9C989FB5-F78C-440B-AE5F-A29B37E5D340}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C989FB5-F78C-440B-AE5F-A29B37E5D340}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C989FB5-F78C-440B-AE5F-A29B37E5D340}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C989FB5-F78C-440B-AE5F-A29B37E5D340}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C989FB5-F78C-440B-AE5F-A29B37E5D340}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B9899E9E-D520-42BA-B8AD-4EC98115EFD9}
+	EndGlobalSection
+EndGlobal
