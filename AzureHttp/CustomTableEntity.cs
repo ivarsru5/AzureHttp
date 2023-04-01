@@ -7,10 +7,10 @@ namespace AzureHttp
 	{
         public int Response { get; set; }
 
-        public CustomTableEntity(string result, int response)
+        public CustomTableEntity(string result, string blobId, int response)
 		{
 			PartitionKey = result;
-			RowKey = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
+			RowKey = blobId;
 			Response = response;
         }
 	}

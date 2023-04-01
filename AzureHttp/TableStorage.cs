@@ -18,7 +18,7 @@ namespace AzureHttp
             _account = CloudStorageAccount.Parse(_azureStorageValue);
 		}
 
-        public async Task UploadResponse(HttpResponseMessage _response)
+        public async Task UploadResponse(HttpResponseMessage _response, string blobId)
         {
             CloudTableClient tableClient = _account.CreateCloudTableClient(new TableClientConfiguration());
             CloudTable table = tableClient.GetTableReference(_tableName);
@@ -27,11 +27,11 @@ namespace AzureHttp
 
             if (_response.IsSuccessStatusCode)
             {
-                newEntity = new CustomTableEntity("Success", ((int)_response.StatusCode));
+                newEntity = new CustomTableEntity("Success", blobId, ((int)_response.StatusCode));
             }
             else
             {
-                newEntity = new CustomTableEntity("Failure", ((int)_response.StatusCode));
+                newEntity = new CustomTableEntity("Failure", blobId, ((int)_response.StatusCode));
             }
 
             await InsertRow(newEntity, table);

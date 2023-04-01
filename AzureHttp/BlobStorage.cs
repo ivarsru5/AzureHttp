@@ -19,13 +19,15 @@ namespace AzureHttp
             _account = CloudStorageAccount.Parse(_azureStorageValue);
 		}
 
-        public async Task UploadPayload(string? responseBody)
+        public async Task<String> UploadPayload(string? responseBody)
         {
             var containerClient = new BlobContainerClient(_azureStorageValue, _container);
 
+            var uinqID = Guid.NewGuid().ToString();
+
             try
             {
-                var blobClient = containerClient.GetBlobClient(Guid.NewGuid().ToString());
+                var blobClient = containerClient.GetBlobClient(uinqID);
                 var contentBytes = Encoding.UTF8.GetBytes(responseBody!);
 
                 using (var stream = new MemoryStream(contentBytes))
@@ -37,6 +39,7 @@ namespace AzureHttp
             {
                 _logger.LogInformation("Error uploading body: {0}", error);
             }
+            return uinqID;
         }
     }
 }

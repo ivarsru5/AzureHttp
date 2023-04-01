@@ -21,13 +21,13 @@ namespace AzureHttp
         public async Task MakeRequestAsync()
         {
             var response = await _httpClient.GetAsync("https://api.publicapis.org/random?auth=null");
-            await _table.UploadResponse(response);
 
             if (response.IsSuccessStatusCode)
             {
                 var body = await response.Content.ReadAsStringAsync();
                 _logger.LogInformation($"API response content: {body}");
-                 await _storage.UploadPayload(body);
+                var blobId = await _storage.UploadPayload(body);
+                await _table.UploadResponse(response, blobId);
             }
             else
             {
