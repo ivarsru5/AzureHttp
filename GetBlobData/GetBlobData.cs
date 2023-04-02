@@ -6,53 +6,52 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Azure.Storage.Blobs.Models;
+using Microsoft.WindowsAzure.Storage;
 
 namespace GetBlobData
 {
     public class GetBlobData
     {
         private readonly ILogger _logger;
-        private readonly BlobServiceClient _blobServiceClient;
+        private readonly CloudStorageAccount _account;
         private readonly BlobContainerClient _containerClient;
         private string _azureStorageValue = Environment.GetEnvironmentVariable("AzureStorage")!;
 
-        public GetBlobData(ILoggerFactory loggerFactory, BlobServiceClient blobServiceClient)
+        public GetBlobData(ILoggerFactory loggerFactory)
         {
             _logger = loggerFactory.CreateLogger<GetBlobData>();
-            _blobServiceClient = blobServiceClient;
-            _containerClient = new BlobContainerClient(_azureStorageValue ,"payload");
+            _account = CloudStorageAccount.Parse(_azureStorageValue);
+            _containerClient = new BlobContainerClient(_azureStorageValue, "payload");
         }
 
         [Function("GetBlobData")]
-        public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequestData req)
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Function,
+            "get", Route = "{rowKey}")]
+            HttpRequestData req,
+            string rowKey)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "application/json");
 
-            var blobs = new List<string>();
-
-            var options = new BlobRequestConditions
+            var blob = _containerClient.GetBlobClient(rowKey);
+            if (await blob.ExistsAsync())
             {
-                IfModifiedSince = DateTimeOffset.UtcNow.AddDays(-1)
-            };
-
-            await foreach (var blobItem in _containerClient.GetBlobsAsync(BlobTraits.Metadata)
-                .WithCancellation(new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token)
-                .ConfigureAwait(false))
-            {
-                var blobClient = _containerClient.GetBlobClient(blobItem.Name);
-                var responseStream = await blobClient.OpenReadAsync();
-                using (var streamReader = new StreamReader(responseStream))
+                BlobDownloadInfo downloadInfo = await blob.DownloadAsync();
+                using (var reader = new StreamReader(downloadInfo.Content))
                 {
-                    var content = await streamReader.ReadToEndAsync();
-                    blobs.Add(content);
+                    var data = await reader.ReadToEndAsync();
+                    await response.WriteStringAsync(data);
                 }
             }
-
-            await response.WriteAsJsonAsync(blobs);
+            else
+            {
+                response.StatusCode = HttpStatusCode.NotFound;
+            }
 
             return response;
         }

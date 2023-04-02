@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.WebJobs.Extensions.Tables;
+using Microsoft.AspNetCore.Http.Extensions;
 using System.Globalization;
 
 namespace QueryTableStorage
@@ -23,11 +24,11 @@ namespace QueryTableStorage
 
         [Function("QueryTableStorage")]
         public async Task<HttpResponseData> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "query/{fromDate}/{toDate}")]
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "query/{fromDate}/{toDate}/{rowKey}")]
             HttpRequestData req,
             string fromDate,
             string toDate,
-            FunctionContext context)
+            string rowKey)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -40,7 +41,7 @@ namespace QueryTableStorage
             var filter = TableQuery.CombineFilters(
                 TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.GreaterThanOrEqual, fromDateTime),
                 TableOperators.And,
-                TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThanOrEqual, toDateTime.AddDays(1))
+                TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThanOrEqual, toDateTime)
                 );
 
             var query = new TableQuery<TableQueryEntity>().Where(filter);
